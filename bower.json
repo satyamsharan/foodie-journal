@@ -1,0 +1,13 @@
+{
+  "name": "foodie-journal",
+  "description": "foodie-journal is an application that helps you explore different international cuisines",
+  "version": "0.0.1",
+  "homepage": "https://github.com/satyamsharan/foodie-journal",
+  "license": "Accenture Software License v1 2008",
+  "private": true,
+  "dependencies": {
+    "angular": "~1.4.0",
+    "angular-route": "~1.4.0",
+    "angular-mocks": "~1.4.0"
+  }
+}
