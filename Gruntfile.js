@@ -1,8 +1,8 @@
 module.exports = function (grunt) {
 
     // static variables for livereload port numbers
-    var LIVERELOAD_PORT = 35729;
-    var SERVER_PORT = 8000;
+    var LIVERELOAD_PORT = 45729;
+    var SERVER_PORT = 9090;
 
     /*
      helper function to initiate a connect middlewear
@@ -173,11 +173,19 @@ module.exports = function (grunt) {
 	  
         // this task will create an HTTP server
         connect: {
-            server: {
+            devel: {
                 options: {
                     port: SERVER_PORT,
                     livereload: true,
-                    base: '.',
+                    base: 'app/',
+                    middleware: livereloadMiddleware
+                }
+            },
+			prod: {
+                options: {
+                    port: SERVER_PORT,
+                    livereload: true,
+                    base: 'dist/',
                     middleware: livereloadMiddleware
                 }
             }
@@ -202,7 +210,20 @@ module.exports = function (grunt) {
             testServer: {
                 path: 'http://localhost:' + SERVER_PORT + '/index.html'
             }
-        }
+        },
+		
+		  clean: {
+			  dist: {
+				files: [{
+				  dot: true,
+				  src: [
+					'.tmp',
+					'dist'
+				  ]
+				}]
+			  },
+			  server: '.tmp'
+			}
     });
 
 
@@ -214,6 +235,7 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-contrib-htmlmin');
 	grunt.loadNpmTasks('grunt-contrib-imagemin');
 	grunt.loadNpmTasks('grunt-contrib-copy');
+	grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-svgmin');
@@ -222,6 +244,9 @@ module.exports = function (grunt) {
 
     // finally we register the tasks that we have created
     // note that the order matters! The watch task should always be the last
-    grunt.registerTask('default', ['jshint', 'ngAnnotate', 'uglify', 'concat', 'cssmin', 'htmlmin', 'imagemin', 'svgmin', 'copy:dist']);
-
+    grunt.registerTask('clean', ['clean:dist']);
+	grunt.registerTask('dist', ['jshint', 'ngAnnotate', 'uglify', 'concat', 'cssmin', 'htmlmin', 'imagemin', 'svgmin', 'copy:dist']);
+	grunt.registerTask('run', ['connect:devel', 'open', 'watch']);
+	grunt.registerTask('start', ['jshint', 'ngAnnotate', 'uglify', 'concat', 'cssmin', 'htmlmin', 'imagemin', 'svgmin', 'copy:dist', 'connect:prod', 'open', 'watch']);
+	grunt.registerTask('default', ['jshint', 'ngAnnotate', 'uglify', 'concat', 'cssmin', 'htmlmin', 'imagemin', 'svgmin', 'copy:dist', 'connect:prod', 'open', 'watch']);
 };
