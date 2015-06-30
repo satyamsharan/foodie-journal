@@ -1,4 +1,3 @@
-'use strict';
 module.exports = function (grunt) {
 
     // static variables for livereload port numbers
@@ -24,7 +23,7 @@ module.exports = function (grunt) {
         // note this uses .jshintrc for it's configuration based on https://github.com/johnpapa/angular-styleguide#js-hint
         jshint: {
             lintAllFiles: {
-                src: ['app/**/*.js', '!app/**/*.test.js']
+                src: ['app/modules/**/*.js', '!app/modules/**/*.test.js']
             }
         },
         /*
@@ -42,11 +41,11 @@ module.exports = function (grunt) {
                 singleQuotes: true,
                 add: true
             },
-            starwars: {
+            target: {
                 files: [
                     {
                         expand: true,
-                        src: ['app/**/*.js', '!app/**/*.test.js', '!app/**/*.annotated.js'],
+                        src: ['app/modules/**/*.js', '!app/modules/**/*.test.js', '!app/modules/**/*.annotated.js'],
                         ext: '.annotated.js'
                     }
                 ]
@@ -65,13 +64,113 @@ module.exports = function (grunt) {
                 options: {
                     sourceMap: true,
                     sourceMapIncludeSources: true,
-                    sourceMapName: 'dist/js/app.min.js.map'
+                    sourceMapName: 'dist/assets/js/source.min.js.map'
                 },
                 files: {
-                    'dist/js/app.min.js': ['app/**/*.annotated.js']
+                    'dist/assets/js/script.min.js': ['app/modules/**/*.annotated.js'],
+					'dist/assets/js/vendor.min.js': [	'app/bower_components/jquery/dist/jquery.min.js',
+															'app/bower_components/bootstrap/dist/js/bootstrap.min.js',
+															'app/bower_components/angular/angular.min.js',
+															'app/bower_components/angular/angular-animate.min.js',
+															'app/bower_components/angular/angular-route.min.js'
+															],
                 }
             }
         },
+		// minifying css using cssmin
+		concat: {
+			style: {
+				src: ['app/*.css','app/assets/css/*.css','app/modules/**/*.css'],
+				dest: '.tmp/css/style.css'
+			},
+			vendor: {
+				src: [	'app/bower_components/angular/*.css',
+						'app/bower_components/bootstrap/dist/css/bootstrap.min.css',
+						'app/bower_components/bootstrap/dist/css/bootstrap-theme.min.css'],
+				dest: '.tmp/css/vendor.css'
+			}
+		},
+		
+		cssmin: {
+			  style: {
+				  src: '.tmp/css/style.css',
+				  dest: 'dist/assets/css/style.min.css'
+			  },
+			  vendor: {
+				  src: '.tmp/css/vendor.css',
+				  dest: 'dist/assets/css/vendor.min.css'
+			  }
+		},
+		
+		// html minifying
+	
+		htmlmin: {
+		  dist: {
+			options: {
+			  collapseWhitespace: true,
+			  conservativeCollapse: true,
+			  collapseBooleanAttributes: true,
+			  removeCommentsFromCDATA: true,
+			  removeOptionalTags: true
+			},
+			files: [{
+			  expand: true,
+			  cwd: 'app/',
+			  src: ['*.html', 'modules/**/*.html'],
+			  dest: 'dist/'
+			}]
+		  }
+		},
+		
+	    imagemin: {
+		  dist: {
+			files: [{
+			  expand: true,
+			  cwd: 'app/',
+			  src: 'assets/img/**/*.{png,jpg,jpeg,gif}',
+			  dest: 'dist/'
+			}]
+		  }
+		},
+
+		svgmin: {
+		  dist: {
+			files: [{
+			  expand: true,
+			  cwd: 'app/',
+			  src: 'assets/img/**/*.svg',
+			  dest: 'dist/'
+			}]
+		  }
+		},
+	
+		
+		copy: {
+		  dist: {
+			files: [{
+			  expand: true,
+			  dot: true,
+			  cwd: 'app/',
+			  dest: 'dist/',
+			  src: [
+				'**/*.{ico,png,txt}',
+				'**/.htaccess',
+				'assets/img/**/*.{webp}',
+				'!bower_components/**/*'
+			  ]
+			},{
+			expand: true,
+			  dot: true,
+			  cwd: 'app/bower_components/bootstrap/dist/',
+			  dest: 'dist/assets/',
+			  src: [
+				'fonts/*.*'
+			  ]
+			}
+			]
+		  }
+		},
+	  
         // this task will create an HTTP server
         connect: {
             server: {
@@ -87,7 +186,7 @@ module.exports = function (grunt) {
         // and on a script change it'll re-annotate and re-uglify the scripts
         watch: {
             scripts: {
-                files: ['app/**/*.js', '!app/**/*.test.js'],
+                files: ['app/modules/**/*.js', '!app/modules/**/*.test.js'],
                 tasks: ['ngAnnotate', 'uglify']
             },
             html: {
@@ -110,13 +209,19 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-ng-annotate');
     grunt.loadNpmTasks('grunt-contrib-uglify');
+	grunt.loadNpmTasks('grunt-contrib-concat');
+	grunt.loadNpmTasks('grunt-contrib-cssmin');
+	grunt.loadNpmTasks('grunt-contrib-htmlmin');
+	grunt.loadNpmTasks('grunt-contrib-imagemin');
+	grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-contrib-watch');
+	grunt.loadNpmTasks('grunt-svgmin');
     grunt.loadNpmTasks('grunt-open');
 
 
     // finally we register the tasks that we have created
     // note that the order matters! The watch task should always be the last
-    grunt.registerTask('default', ['jshint', 'ngAnnotate', 'uglify', 'connect', 'open', 'watch']);
+    grunt.registerTask('default', ['jshint', 'ngAnnotate', 'uglify', 'concat', 'cssmin', 'htmlmin', 'imagemin', 'svgmin', 'copy:dist']);
 
 };
