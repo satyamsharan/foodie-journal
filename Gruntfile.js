@@ -121,7 +121,7 @@ module.exports = function (grunt) {
 			}]
 		  }
 		},
-		
+		// Image minifying
 	    imagemin: {
 		  dist: {
 			files: [{
@@ -133,6 +133,8 @@ module.exports = function (grunt) {
 		  }
 		},
 
+		// SVG Image minifying
+		
 		svgmin: {
 		  dist: {
 			files: [{
@@ -144,6 +146,7 @@ module.exports = function (grunt) {
 		  }
 		},
 	
+		// Copying contents to dist
 		
 		copy: {
 		  dist: {
@@ -171,6 +174,13 @@ module.exports = function (grunt) {
 		  }
 		},
 	  
+		karma: {
+			unit: {
+				configFile: 'karma.conf.js'
+			}
+		},
+	  
+		
         // this task will create an HTTP server
         connect: {
             devel: {
@@ -217,8 +227,8 @@ module.exports = function (grunt) {
 				files: [{
 				  dot: true,
 				  src: [
-					'.tmp',
-					'dist'
+					'.tmp/**/*',
+					'dist/**/*'
 				  ]
 				}]
 			  },
@@ -238,6 +248,7 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-contrib-watch');
+	grunt.loadNpmTasks('grunt-karma');
 	grunt.loadNpmTasks('grunt-svgmin');
     grunt.loadNpmTasks('grunt-open');
 
@@ -247,6 +258,7 @@ module.exports = function (grunt) {
     grunt.registerTask('clean', ['clean:dist']);
 	grunt.registerTask('dist', ['jshint', 'ngAnnotate', 'uglify', 'concat', 'cssmin', 'htmlmin', 'imagemin', 'svgmin', 'copy:dist']);
 	grunt.registerTask('run', ['connect:devel', 'open', 'watch']);
+	grunt.registerTask('test', ['karma']);
 	grunt.registerTask('start', ['jshint', 'ngAnnotate', 'uglify', 'concat', 'cssmin', 'htmlmin', 'imagemin', 'svgmin', 'copy:dist', 'connect:prod', 'open', 'watch']);
 	grunt.registerTask('default', ['jshint', 'ngAnnotate', 'uglify', 'concat', 'cssmin', 'htmlmin', 'imagemin', 'svgmin', 'copy:dist', 'connect:prod', 'open', 'watch']);
 };
